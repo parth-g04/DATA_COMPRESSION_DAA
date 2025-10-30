@@ -67,13 +67,21 @@ The GUI is organized into three tabs:
 
 ## Project File Structure
 gui.py: The main Tkinter application that runs the project.
+
 huffman.py: Implements the Huffman (Greedy) compression algorithm.
+
 lzw.py: Implements the LZW (Dictionary-based) compression algorithm.
+
 shannon_fano.py: Implements the Shannon-Fano (Divide & Conquer) algorithm.
+
 server.py: The server script for the file transfer simulation.
+
 client.py: The client script for the file transfer simulation.
+
 sample.txt: A large sample text file (Alice in Wonderland) used for analysis.
+
 README.md: This readme file.
+
 ## Author
 
 * **Parth G. (parth-g04)**
