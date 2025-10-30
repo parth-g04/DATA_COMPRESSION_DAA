@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 import subprocess
 import os
-import re # Added for parsing output
-import threading # Added for running the server
+import re
+import threading
 
 class CompressionApp:
     def __init__(self, root):
@@ -11,14 +11,12 @@ class CompressionApp:
         self.root.title("DAA Project: Compression & Transfer Tool")
         self.root.geometry("800x650")
         
-        # --- Class Variables ---
         self.input_file = tk.StringVar()
         self.output_file = tk.StringVar()
         self.algorithm = tk.StringVar(value="huffman.py")
         self.mode = tk.StringVar(value="compress")
         self.server_process = None
         
-        # --- Style Configuration ---
         style = ttk.Style()
         style.theme_use('clam')
         style.configure("Header.TLabel", font=("Arial", 12, "bold"))
@@ -29,7 +27,7 @@ class CompressionApp:
         style.configure("TRadiobutton", background="#f0f0f0")
         style.configure("TNotebook.Tab", font=("Arial", 10, "bold"), padding=[10, 5])
         
-        # --- Main Layout ---
+ 
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -45,12 +43,12 @@ class CompressionApp:
         self.notebook.add(self.tab_transfer, text="Client-Server Transfer")
         self.notebook.add(self.tab_analysis, text="Analysis & Comparison")
         
-        # --- Shared Output Console ---
+
         ttk.Label(main_frame, text="Output Console:", style="Header.TLabel").pack(anchor=tk.W, pady=(10, 0))
         self.log_widget = scrolledtext.ScrolledText(main_frame, height=15, state="disabled", font=("Courier New", 9))
         self.log_widget.pack(fill=tk.BOTH, expand=True, pady=5)
         
-        # --- Populate Tabs ---
+
         self.create_main_tab()
         self.create_transfer_tab()
         self.create_analysis_tab()
@@ -66,21 +64,20 @@ class CompressionApp:
         self.log_widget.insert(tk.END, message + "\n")
         self.log_widget.config(state="disabled")
         self.log_widget.see(tk.END) # Auto-scroll
-        self.root.update_idletasks() # Force GUI update
+        self.root.update_idletasks()
 
-    # --- TAB 1: Compress / Decompress ---
+    # Compress / Decompress 
     
     def create_main_tab(self):
         frame = self.tab_main
         
-        # Input
         in_frame = ttk.Frame(frame)
         in_frame.pack(fill=tk.X, pady=5)
         ttk.Label(in_frame, text="Input File:", width=10).pack(side=tk.LEFT, padx=5)
         ttk.Entry(in_frame, textvariable=self.input_file, state="readonly", width=80).pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(in_frame, text="Browse...", command=self.select_input).pack(side=tk.LEFT, padx=5)
         
-        # Options
+    
         options_frame = ttk.Frame(frame)
         options_frame.pack(fill=tk.X, pady=10)
         
@@ -92,15 +89,14 @@ class CompressionApp:
         ttk.Radiobutton(options_frame, text="Huffman (Greedy)", variable=self.algorithm, value="huffman.py").grid(row=1, column=1, padx=5, sticky=tk.W)
         ttk.Radiobutton(options_frame, text="LZW (Dictionary)", variable=self.algorithm, value="lzw.py").grid(row=1, column=2, padx=5, sticky=tk.W)
         ttk.Radiobutton(options_frame, text="Shannon-Fano (D&C)", variable=self.algorithm, value="shannon_fano.py").grid(row=1, column=3, padx=5, sticky=tk.W)
-        
-        # Output (Automatic)
+    
         out_frame = ttk.Frame(frame)
         out_frame.pack(fill=tk.X, pady=5)
         ttk.Label(out_frame, text="Output File:", width=10).pack(side=tk.LEFT, padx=5)
         self.output_file_label = ttk.Label(out_frame, text="(Select input file...)", style="TLabel", relief="sunken", padding=5, font=("Courier New", 10))
         self.output_file_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
-        # Run Button
+   
         ttk.Button(frame, text="RUN TASK", style="Accent.TButton", command=self.run_process).pack(fill=tk.X, ipady=10, pady=20)
 
     def select_input(self):
@@ -122,13 +118,12 @@ class CompressionApp:
         basename, ext = os.path.splitext(filename)
 
         if mode == "compress":
-            # Smartly handle re-compressing
+
             if "-huffman" in basename or "-lzw" in basename or "-shannon_fano" in basename:
                 basename = basename.split('-')[0] # Get original name, e.g., "alice"
             
             out_filename = f"{basename}-{algo_name}.bin"
-        else: # decompress
-            # e.g., "alice-huffman.bin" -> "alice-huffman-decompressed.txt"
+        else: 
             out_filename = f"{basename}-decompressed.txt"
             
         full_out_path = os.path.join(path, out_filename)
@@ -160,7 +155,7 @@ class CompressionApp:
         except FileNotFoundError:
             self.log(f"Error: Script '{script}' not found. Are all .py files in the same folder?")
 
-    # --- TAB 2: Client-Server Transfer ---
+
 
     def create_transfer_tab(self):
         frame = self.tab_transfer
@@ -190,7 +185,6 @@ class CompressionApp:
     def start_server(self):
         self.log("Starting server...")
         try:
-            # Run server in a separate, non-blocking process
             self.server_process = subprocess.Popen(['python', '-u', 'server.py'], 
                                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
                                                     text=True, encoding='utf-8')
@@ -206,7 +200,6 @@ class CompressionApp:
             self.log(f"Failed to start server: {e}")
 
     def read_server_output(self):
-        # This function runs in a separate thread
         if self.server_process and self.server_process.stdout:
             for line in iter(self.server_process.stdout.readline, ''):
                 self.log(f"[Server]: {line.strip()}")
@@ -240,12 +233,11 @@ class CompressionApp:
             self.log(e.stdout)
             self.log(e.stderr)
 
-    # --- TAB 3: Analysis & Comparison ---
 
     def create_analysis_tab(self):
         frame = self.tab_analysis
         
-        # Input
+   
         in_frame = ttk.Frame(frame)
         in_frame.pack(fill=tk.X, pady=5)
         ttk.Label(in_frame, text="File to Analyze:", width=15).pack(side=tk.LEFT, padx=5)
@@ -253,10 +245,9 @@ class CompressionApp:
         self.analysis_file_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(in_frame, text="Browse...", command=self.select_analysis_file).pack(side=tk.LEFT, padx=5)
         
-        # Run Button
+       
         ttk.Button(frame, text="RUN FULL ANALYSIS", style="Accent.TButton", command=self.run_analysis).pack(fill=tk.X, ipady=10, pady=20)
         
-        # Results Table
         ttk.Label(frame, text="Comparison Table", style="Header.TLabel").pack(anchor=tk.W, pady=(10, 5))
         
         cols = ('Algorithm', 'Method', 'Original Size (bytes)', 'Compressed Size (bytes)', 'Ratio')
@@ -282,7 +273,7 @@ class CompressionApp:
             messagebox.showerror("Error", "Please select a file to analyze.")
             return
 
-        # Clear old table data
+
         for i in self.tree.get_children():
             self.tree.delete(i)
             
@@ -309,17 +300,15 @@ class CompressionApp:
                 else:
                     self.log(f"Could not parse output for {name}")
 
-                # Clean up temp file
                 if os.path.exists(out_file):
                     os.remove(out_file)
                     
             except Exception as e:
                 self.log(f"Failed to run {name}: {e}")
         
-        # Sort results by best ratio (highest)
+
         results.sort(key=lambda x: x[4], reverse=True)
-        
-        # Populate table
+
         for res in results:
             self.tree.insert("", tk.END, values=res)
             
@@ -329,7 +318,7 @@ class CompressionApp:
         """Parses the console output from your scripts to find the data."""
         data = {}
         try:
-            # Using regex to find the numbers
+
             org_match = re.search(r"Original file size: (\d+)", output)
             comp_match = re.search(r"Compressed file size: (\d+)", output)
             ratio_match = re.search(r"Compression Ratio: ([0-9.]+)", output)
@@ -347,6 +336,6 @@ class CompressionApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = CompressionApp(root)
-    # Make sure server is stopped when window is closed
+
     root.protocol("WM_DELETE_WINDOW", lambda: (app.stop_server(), root.destroy()))
     root.mainloop()

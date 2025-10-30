@@ -1,10 +1,8 @@
 import json
-import sys  # Added for command-line arguments
-import os   # Added for getting file sizes
-import pickle # Added to save/load the compressed file
+import sys 
+import os   
+import pickle 
 
-# --- Core Shannon-Fano Functions ---
-# (These are UNCHANGED from your code)
 
 def get_frequencies(text):
     """Counts the frequency of each character in the text."""
@@ -62,15 +60,11 @@ def compress(text):
         encoded_text += shannon_fano_codes[char]
     return encoded_text, shannon_fano_codes
 
-# --- NEW SECTION: Decompression Function ---
-# (This works just like the Huffman decompressor)
 
 def shannon_fano_decompress(encoded_text, codes_table):
     """Decompresses a string using the Shannon-Fano codes table."""
     if not encoded_text:
         return ""
-    
-    # Invert the codes table: {'01': 'a', '10': 'b'}
     reversed_codes_table = {code: char for char, code in codes_table.items()}
     
     decoded_text = ""
@@ -78,18 +72,13 @@ def shannon_fano_decompress(encoded_text, codes_table):
 
     for bit in encoded_text:
         current_code += bit
-        # Check if the current sequence of bits is a valid code
         if current_code in reversed_codes_table:
-            # If it is, add the character to our result
             char = reversed_codes_table[current_code]
             decoded_text += char
-            # Reset the current code
             current_code = ""
 
     return decoded_text
 
-# --- NEW SECTION: Bit/Byte Packing Functions ---
-# (These are identical to the ones from huffman.py)
 
 def pack_bits(encoded_text):
     """Packs a string of '0's and '1's into bytes."""
@@ -104,14 +93,13 @@ def pack_bits(encoded_text):
     return bytearray(byte_list), padding_amount
 
 def unpack_bits(byte_array, padding_amount):
-    """Unpacks bytes into a string of '0's and '1's."""
     encoded_text_padded = ""
     for byte in byte_array:
         encoded_text_padded += bin(byte)[2:].zfill(8)
     encoded_text = encoded_text_padded[:len(encoded_text_padded) - padding_amount]
     return encoded_text
 
-# --- NEW SECTION: File Handling Functions ---
+
 
 def compress_file(input_file, output_file):
     """Reads a file, compresses it, and saves it to a new file."""
@@ -128,13 +116,12 @@ def compress_file(input_file, output_file):
         print("Error: Input file is empty.")
         return
 
-    # 1. Compress the text (using your original function)
+
     encoded_text, codes_table = compress(text)
     
-    # 2. Pack the bit string into bytes
+    # Pack the bit string into bytes
     byte_array, padding = pack_bits(encoded_text)
     
-    # 3. Create a "package" to save
     data_to_save = {
         'codes': codes_table,
         'padding': padding,
@@ -188,16 +175,16 @@ def decompress_file(input_file, output_file):
     print(f"Successfully decompressed and saved to {output_file}")
 
 
-# --- MODIFIED: Main execution block ---
+
 if __name__ == "__main__":
     
-    # This block checks for command-line arguments
+ 
     
     if len(sys.argv) != 4:
         print("Usage: python shannon_fano.py <mode> <input_file> <output_file>")
         print("Example (compress): python shannon_fano.py compress sample.txt shannon_compressed.bin")
         print("Example (decompress): python shannon_fano.py decompress shannon_compressed.bin decompressed.txt")
-        sys.exit(1) # Exit the script
+        sys.exit(1)
         
     mode = sys.argv[1]
     input_file = sys.argv[2]

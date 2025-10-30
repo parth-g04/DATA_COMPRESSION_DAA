@@ -1,10 +1,8 @@
 import heapq
 import os
-import sys  # Added for command-line arguments
-import pickle # Added to save the compressed file + code table
+import sys 
+import pickle 
 
-# 1. Define the Node class for the Huffman Tree
-# (This is UNCHANGED from your code)
 class HuffmanNode:
     def __init__(self, char, freq):
         self.char = char
@@ -15,8 +13,6 @@ class HuffmanNode:
     def __lt__(self, other):
         return self.freq < other.freq
 
-# 2. Function to build the frequency table
-# (This is UNCHANGED from your code)
 def build_frequency_table(text):
     """Calculates the frequency of each character in the text."""
     freq_table = {}
@@ -26,8 +22,6 @@ def build_frequency_table(text):
         freq_table[char] += 1
     return freq_table
 
-# 3. Function to build the Huffman Tree
-# (This is UNCHANGED from your code)
 def build_huffman_tree(freq_table):
     """Builds the Huffman Tree using a priority queue."""
     priority_queue = []
@@ -48,8 +42,6 @@ def build_huffman_tree(freq_table):
 
     return priority_queue[0]
 
-# 4. Function to generate the codes
-# (This is UNCHANGED from your code)
 def build_codes_table(tree_root):
     """Generates the Huffman codes by traversing the tree."""
     codes_table = {}
@@ -64,8 +56,6 @@ def build_codes_table(tree_root):
     traverse_tree(tree_root, "")
     return codes_table
 
-# 5. Main function to compress text
-# (This is UNCHANGED from your code)
 def huffman_compress(text):
     """Compresses a given string using Huffman Coding."""
     if not text:
@@ -78,8 +68,6 @@ def huffman_compress(text):
         encoded_text += codes_table[char]
     return encoded_text, codes_table
 
-# 6. Main function to decompress text
-# (This is UNCHANGED from your code)
 def huffman_decompress(encoded_text, codes_table):
     """Decompresses a string using the Huffman codes table."""
     if not encoded_text:
@@ -95,42 +83,37 @@ def huffman_decompress(encoded_text, codes_table):
             current_code = ""
     return decoded_text
 
-# --- NEW SECTION: Bit/Byte Packing Functions ---
 
 def pack_bits(encoded_text):
-    """Packs a string of '0's and '1's into bytes."""
-    # Calculate padding
-    # We need the text length to be a multiple of 8
     padding_amount = (8 - len(encoded_text) % 8) % 8
     padded_encoded_text = encoded_text + ('0' * padding_amount)
     
-    # Convert padded text into a list of integers
+
     byte_list = []
     for i in range(0, len(padded_encoded_text), 8):
         byte = padded_encoded_text[i:i+8]
         byte_list.append(int(byte, 2))
         
-    # Convert list of integers into a byte array
+
     return bytearray(byte_list), padding_amount
 
 def unpack_bits(byte_array, padding_amount):
     """Unpacks bytes into a string of '0's and '1's."""
     encoded_text_padded = ""
     for byte in byte_array:
-        # Convert each byte (int) to its 8-bit binary string
+
         encoded_text_padded += bin(byte)[2:].zfill(8)
         
-    # Remove the padding
+
     encoded_text = encoded_text_padded[:len(encoded_text_padded) - padding_amount]
     return encoded_text
 
-# --- NEW SECTION: File Handling Functions ---
 
 def compress_file(input_file, output_file):
     """Reads a file, compresses it, and saves it to a new file."""
     print(f"--- Compressing {input_file} ---")
     
-    # Read text from the input file
+
     try:
         with open(input_file, 'r', encoding='utf-8') as f:
             text = f.read()
@@ -142,26 +125,22 @@ def compress_file(input_file, output_file):
         print("Error: Input file is empty.")
         return
 
-    # 1. Compress the text (using your original function)
+
     encoded_text, codes_table = huffman_compress(text)
     
-    # 2. Pack the bit string into bytes
+
     byte_array, padding = pack_bits(encoded_text)
-    
-    # 3. Create a "package" to save
-    # This package contains everything needed for decompression
+
     data_to_save = {
         'codes': codes_table,
         'padding': padding,
         'data': byte_array
     }
-    
-    # 4. Save the package to the output file using pickle
-    # We use 'wb' (write bytes) mode
+
     with open(output_file, 'wb') as f:
         pickle.dump(data_to_save, f)
         
-    # --- Analysis ---
+
     original_size = os.path.getsize(input_file)
     compressed_size = os.path.getsize(output_file)
     ratio = original_size / compressed_size
@@ -173,11 +152,9 @@ def compress_file(input_file, output_file):
 
 
 def decompress_file(input_file, output_file):
-    """Reads a compressed file, decompresses it, and saves the text."""
     print(f"--- Decompressing {input_file} ---")
 
     # 1. Load the "package" from the compressed file
-    # We use 'rb' (read bytes) mode
     try:
         with open(input_file, 'rb') as f:
             loaded_data = pickle.load(f)
@@ -205,21 +182,14 @@ def decompress_file(input_file, output_file):
     print(f"Successfully decompressed and saved to {output_file}")
 
 
-# --- MODIFIED: Main execution block ---
+
 if __name__ == "__main__":
-    
-    # This block now checks for command-line arguments
-    # sys.argv is a list of arguments.
-    # sys.argv[0] is 'huffman.py'
-    # sys.argv[1] is the mode ('compress' or 'decompress')
-    # sys.argv[2] is the input_file
-    # sys.argv[3] is the output_file
-    
+        
     if len(sys.argv) != 4:
         print("Usage: python huffman.py <mode> <input_file> <output_file>")
         print("Example (compress): python huffman.py compress sample.txt huffman_compressed.bin")
         print("Example (decompress): python huffman.py decompress huffman_compressed.bin decompressed.txt")
-        sys.exit(1) # Exit the script
+        sys.exit(1) 
         
     mode = sys.argv[1]
     input_file = sys.argv[2]
